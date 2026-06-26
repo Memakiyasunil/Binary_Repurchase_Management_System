@@ -6,6 +6,7 @@ import Register from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
 import Tree from './pages/Tree';
 import Store from './pages/Store';
+import Cart from './pages/Cart';
 import Wallet from './pages/Wallet';
 import Withdrawals from './pages/Withdrawals';
 import KycUpload from './pages/KycUpload';
@@ -94,11 +95,13 @@ function App() {
                 <Route path="/privacy" element={<CmsPage title="Privacy Policy" lastUpdated="Sep 15, 2026" content="<p>We take your data security seriously. We employ 256-bit AES encryption for all sensitive KYC and wallet data.</p>" />} />
                 <Route path="/terms" element={<CmsPage title="Terms &amp; Conditions" lastUpdated="Sep 10, 2026" content="<p>By participating in the Enterprise MLM program, you agree to abide by all compliance regulations. Misrepresentation of income is strictly prohibited.</p>" />} />
                 <Route path="/refund" element={<CmsPage title="Refund Policy" lastUpdated="Sep 01, 2026" content="<p>All product purchases via the Repurchase Store are subject to a 14-day return window provided they are unopened and in original condition.</p>" />} />
+                <Route path="/contact" element={<CmsPage title="Contact Us" lastUpdated="Oct 26, 2026" content="<p>Reach out to our global support team 24/7 at support@eshop.com or call +1-800-ENTERPRISE.</p>" />} />
 
                 {/* Protected Routes inside Layout */}
                 <Route element={<Layout />}>
                   <Route path="/dashboard" element={<Dashboard />} />
                   <Route path="/store" element={<Store />} />
+                  <Route path="/cart" element={<Cart />} />
                   <Route path="/tree" element={<Tree />} />
                   <Route path="/wallet" element={<Wallet />} />
                   <Route path="/reports" element={<Reports />} />

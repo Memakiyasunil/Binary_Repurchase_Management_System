@@ -109,6 +109,12 @@ export const profileService = {
     const d = await r.json();
     if (!r.ok) throw new Error(d.message);
     return d;
+  },
+  getTree: async () => {
+    const r = await fetch(`${BASE}tree`, getAuthConfig());
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.message);
+    return d;
   }
 };
 

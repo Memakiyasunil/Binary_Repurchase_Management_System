@@ -2,12 +2,14 @@ import { useDispatch } from 'react-redux';
 import { addToCart } from '../features/cart/cartSlice';
 import { ShoppingCart, Award } from 'lucide-react';
 import { motion } from 'framer-motion';
+import toast from 'react-hot-toast';
 
 const ProductCard = ({ product }) => {
   const dispatch = useDispatch();
 
   const handleAddToCart = () => {
     dispatch(addToCart({ ...product, qty: 1 }));
+    toast.success(`${product.name} added to cart!`, { icon: '🛒' });
   };
 
   return (
