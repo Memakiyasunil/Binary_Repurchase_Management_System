@@ -17,7 +17,7 @@ const Register = () => {
     password: '',
     otp: ''
   });
-  
+
   const [modalState, setModalState] = useState({
     isOpen: false,
     type: 'info',
@@ -76,33 +76,33 @@ const Register = () => {
 
   return (
     <>
-      <Modal 
-        isOpen={modalState.isOpen} 
+      <Modal
+        isOpen={modalState.isOpen}
         onClose={() => setModalState({ ...modalState, isOpen: false })}
         type={modalState.type}
         title={modalState.title}
         message={modalState.message}
       />
-      
+
       <div className="min-h-screen grid grid-cols-1 lg:grid-cols-2 font-sans bg-[#FDFBF7]">
-        
+
         {/* Left Side: Graphic Banner (Hidden on Mobile/Tablet) */}
         <div className="hidden lg:flex flex-col relative bg-gradient-to-br from-[#0a1e14] to-[#123122] overflow-hidden justify-between p-12">
-          
+
           {/* Subtle World Map / Network Background overlay */}
           <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at center, #D97706 0%, transparent 70%)', mixBlendMode: 'screen' }}></div>
-          
+
           <div className="relative z-10 flex flex-col items-center justify-center flex-grow">
-            <motion.img 
+            <motion.img
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
-              src="/logo.png" 
-              alt="Binary Repurchase Logo" 
-              className="w-48 xl:w-64 object-contain mb-8 drop-shadow-2xl" 
+              src="/logo.png"
+              alt="Binary Repurchase Logo"
+              className="w-48 xl:w-64 object-contain mb-8 drop-shadow-2xl"
             />
-            
-            <motion.div 
+
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.3, duration: 0.8 }}
@@ -112,9 +112,9 @@ const Register = () => {
               <p className="text-amber-gold tracking-[0.2em] text-[10px] xl:text-xs font-bold uppercase mb-4">MLM Management System</p>
               <p className="text-white/60 tracking-widest text-[8px] xl:text-[10px] font-bold uppercase">Grow Together • Earn Together • Succeed Together</p>
             </motion.div>
-            
+
             {/* Podium Graphic Placeholder */}
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.6, duration: 1 }}
@@ -123,15 +123,15 @@ const Register = () => {
               {/* Gold Podium */}
               <div className="w-[80%] h-12 bg-gradient-to-t from-amber-gold/20 to-amber-gold/50 rounded-[50%] absolute bottom-0 blur-[2px]"></div>
               <div className="w-[70%] h-8 bg-gradient-to-t from-amber-gold to-copper rounded-[50%] absolute bottom-4 shadow-[0_0_40px_rgba(217,119,6,0.5)]"></div>
-              
+
               {/* Trending Arrow */}
               <svg className="absolute bottom-12 w-[120%] h-32 left-[-10%] pointer-events-none" viewBox="0 0 200 100" fill="none">
-                <path d="M10 80 Q 50 60 90 70 T 180 20" stroke="#D97706" strokeWidth="4" strokeLinecap="round" fill="none"/>
-                <polygon points="175,15 190,15 185,30" fill="#D97706" transform="rotate(15 180 20)"/>
+                <path d="M10 80 Q 50 60 90 70 T 180 20" stroke="#D97706" strokeWidth="4" strokeLinecap="round" fill="none" />
+                <polygon points="175,15 190,15 185,30" fill="#D97706" transform="rotate(15 180 20)" />
               </svg>
             </motion.div>
           </div>
-          
+
           {/* Bottom Features */}
           <div className="relative z-10 grid grid-cols-3 gap-4 text-center mt-auto">
             <div className="flex flex-col items-center">
@@ -150,7 +150,7 @@ const Register = () => {
               <p className="text-white/50 text-[10px]">Strong Network Stronger Future</p>
             </div>
           </div>
-          
+
           {/* Floating Security Badge */}
           <div className="absolute bottom-6 right-6 bg-[#E8F0E8] rounded-xl px-4 py-2 flex items-center gap-3 shadow-xl">
             <ShieldCheck className="text-[#2F523B]" size={20} />
@@ -163,31 +163,31 @@ const Register = () => {
 
         {/* Right Side: The Form Engine */}
         <div className="flex flex-col relative overflow-y-auto w-full max-w-[100vw]">
-          
+
           {/* Top Right Language Selector */}
-          <div className="absolute top-6 right-6 z-20 hidden sm:block">
+          {/* <div className="absolute top-6 right-6 z-20 hidden sm:block">
             <button className="bg-white border border-beige-soft px-4 py-2 rounded-full flex items-center gap-2 text-sm text-brown-dark font-medium shadow-sm hover:bg-ivory transition-colors">
               <Globe size={16} className="text-amber-gold" />
               English
               <ChevronDown size={14} className="text-brown-dark/50" />
             </button>
-          </div>
-          
+          </div> */}
+
           <div className="flex-1 flex flex-col items-center justify-center p-4 sm:p-8 lg:p-12 w-full mt-6 lg:mt-0">
-            
+
             {/* Mobile Header */}
             <div className="lg:hidden text-center mb-6">
               <img src="/logo.png" alt="Binary Repurchase Logo" className="h-16 mx-auto object-contain mb-2" />
             </div>
 
             {/* Form Card */}
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.6 }}
               className="bg-white w-full max-w-[560px] rounded-[32px] p-6 sm:p-10 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.05)] border border-beige-soft/30 relative"
             >
-              
+
               <div className="text-center mb-6">
                 <h2 className="text-2xl sm:text-3xl font-serif font-bold text-[#103A26] mb-2">Apply for Access</h2>
                 <p className="text-gray-500 text-sm">Join the world's leading enterprise MLM platform.</p>
@@ -208,7 +208,7 @@ const Register = () => {
               )}
 
               <form onSubmit={onSubmit} className="space-y-4">
-                
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
                     <label className="block text-[10px] font-bold uppercase tracking-widest text-[#103A26]/70 pl-1">Sponsor ID</label>
@@ -375,9 +375,9 @@ const Register = () => {
                   )}
                 </button>
               </form>
-              
+
             </motion.div>
-            
+
             {/* Existing Users */}
             <div className="mt-6 text-center">
               <p className="text-brown-dark/60 font-medium text-sm">
