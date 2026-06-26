@@ -17,10 +17,27 @@ const Store = () => {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-96">
-        <div className="relative w-16 h-16">
-          <div className="absolute top-0 left-0 w-full h-full border-4 border-emerald-deep/20 rounded-full"></div>
-          <div className="absolute top-0 left-0 w-full h-full border-4 border-emerald-deep rounded-full border-t-transparent animate-spin"></div>
+      <div className="space-y-10 animate-fade-in">
+        <div className="h-32 bg-cream/30 rounded-[24px] border border-beige-soft/30 animate-pulse"></div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+          {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+            <div key={i} className="glass-card-luxury h-[480px] overflow-hidden flex flex-col">
+              <div className="h-56 bg-cream/50 animate-pulse border-b border-beige-soft/30"></div>
+              <div className="p-6 flex flex-col flex-grow space-y-4">
+                <div className="w-16 h-3 bg-cream/80 animate-pulse rounded-full"></div>
+                <div className="w-3/4 h-6 bg-cream/80 animate-pulse rounded-full"></div>
+                <div className="w-full h-12 bg-cream/50 animate-pulse rounded-xl mt-4"></div>
+                <div className="grid grid-cols-2 gap-4 mt-auto">
+                  <div className="h-14 bg-cream/50 animate-pulse rounded-2xl"></div>
+                  <div className="h-14 bg-cream/50 animate-pulse rounded-2xl"></div>
+                </div>
+                <div className="flex justify-between items-center pt-4 border-t border-beige-soft/20 mt-4">
+                  <div className="w-20 h-8 bg-cream/80 animate-pulse rounded-full"></div>
+                  <div className="w-32 h-12 bg-emerald-deep/10 animate-pulse rounded-2xl"></div>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     );

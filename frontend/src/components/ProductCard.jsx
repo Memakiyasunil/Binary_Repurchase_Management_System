@@ -74,14 +74,14 @@ const ProductCard = ({ product }) => {
         </div>
 
         {/* Footer actions */}
-        <div className="flex items-center justify-between mt-auto pt-5 border-t border-beige-soft/40">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mt-auto pt-5 border-t border-beige-soft/40">
           <div className="flex flex-col">
             <span className="text-[10px] uppercase tracking-widest text-brown-dark/50 font-bold mb-0.5">Price</span>
             <span className="text-2xl font-serif font-bold text-emerald-deep">${product.price.toFixed(2)}</span>
           </div>
           <button 
             onClick={handleAddToCart}
-            className="luxury-button flex items-center justify-center gap-2.5 bg-gradient-to-r from-emerald-deep to-[#0d6059] text-white px-5 py-3 rounded-2xl shadow-emerald-deep/20"
+            className="luxury-button w-full sm:w-auto flex items-center justify-center gap-2.5 bg-gradient-to-r from-emerald-deep to-[#0d6059] text-white px-5 py-3 rounded-2xl shadow-emerald-deep/20"
           >
             <ShoppingCart size={18} />
             <span className="font-semibold tracking-wide text-sm">Add to Cart</span>

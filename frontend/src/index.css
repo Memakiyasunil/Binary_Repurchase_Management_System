@@ -5,14 +5,30 @@
   --color-green-forest: #166534;
   --color-amber-gold: #D97706;
   --color-copper: #B45309;
-  --color-ivory: #FFFDF7;
-  --color-cream: #FFFBEB;
-  --color-olive-deep: #3F6212;
-  --color-beige-soft: #E7D7B1;
-  --color-brown-dark: #3A2F2A;
   
+  /* Dynamic Theme Colors */
+  --color-ivory: var(--theme-bg);
+  --color-cream: var(--theme-card);
+  --color-brown-dark: var(--theme-text);
+  --color-beige-soft: var(--theme-border);
+  
+  --color-olive-deep: #0A1E14;
   --color-ruby-red: #BE123C;
   --color-emerald-success: #10B981;
+}
+
+:root {
+  --theme-bg: #FDF9F1;
+  --theme-card: #FFFFFF;
+  --theme-text: #3A2F2A;
+  --theme-border: #EFE4D3;
+}
+
+.dark {
+  --theme-bg: #06140D; /* Deep dark forest background */
+  --theme-card: #0A1E14; /* Slightly lighter for cards */
+  --theme-text: #FDF9F1; /* Ivory text */
+  --theme-border: #163624; /* Dark emerald border */
 }
 
 body {
@@ -32,7 +48,7 @@ body {
 }
 
 .luxury-button {
-  @apply relative overflow-hidden rounded-[16px] font-medium transition-all duration-300 shadow-[0_4px_14px_0_rgba(15,118,110,0.2)] hover:shadow-[0_6px_20px_rgba(15,118,110,0.3)] hover:-translate-y-0.5 active:translate-y-0 active:shadow-none;
+  @apply relative overflow-hidden rounded-[16px] font-medium transition-all duration-300 shadow-[0_4px_14px_0_rgba(15,118,110,0.2)] hover:shadow-[0_6px_20px_rgba(15,118,110,0.3)] hover:-translate-y-0.5 active:translate-y-0 active:shadow-none min-h-[48px];
 }
 
 /* Gradient Texts */
@@ -55,15 +71,36 @@ body {
   @apply bg-amber-gold/50;
 }
 
+/* iOS & Touch Optimizations */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.touch-scroll {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+/* Safe Area Insets for iOS Notch/Dynamic Island */
+.safe-p-top { padding-top: env(safe-area-inset-top); }
+.safe-p-bottom { padding-bottom: env(safe-area-inset-bottom); }
+.safe-p-left { padding-left: env(safe-area-inset-left); }
+.safe-p-right { padding-right: env(safe-area-inset-right); }
+
 /* Custom Selection */
 ::selection {
   @apply bg-emerald-deep/20 text-emerald-deep;
 }
 
-/* Remove all blue focus rings globally */
+/* Remove all blue focus rings globally, add scale for iOS zoom prevention */
+input, textarea, select {
+  font-size: clamp(16px, 1rem, 18px); /* Prevent iOS auto-zoom */
+}
+
 *:focus {
   @apply outline-none ring-0;
 }
 *:focus-visible {
   @apply ring-2 ring-emerald-deep/50 outline-none;
 }
+

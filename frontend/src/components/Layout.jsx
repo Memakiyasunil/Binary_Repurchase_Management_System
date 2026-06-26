@@ -1,5 +1,6 @@
 import { Outlet, Navigate, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Sidebar from './Sidebar';
 import Header from './Header';
@@ -7,19 +8,20 @@ import Header from './Header';
 const Layout = () => {
   const { user } = useSelector((state) => state.auth);
   const location = useLocation();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   if (!user) {
     return <Navigate to="/login" replace />;
   }
 
   return (
-    <div className="flex h-screen overflow-hidden bg-ivory font-sans">
-      <Sidebar />
+    <div className="flex h-screen overflow-hidden bg-transparent font-sans">
+      <Sidebar isMobileMenuOpen={isMobileMenuOpen} setIsMobileMenuOpen={setIsMobileMenuOpen} />
       
       <div className="relative flex flex-col flex-1 overflow-y-auto overflow-x-hidden selection:bg-emerald-deep/20">
-        <Header />
+        <Header setIsMobileMenuOpen={setIsMobileMenuOpen} />
         
-        <main className="flex-grow p-10 relative">
+        <main className="flex-grow p-4 md:p-10 relative">
           {/* Subtle background luxury accents */}
           <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none -z-10">
             <div className="absolute top-[-10%] right-[-5%] w-96 h-96 bg-amber-gold/5 rounded-full blur-3xl"></div>
