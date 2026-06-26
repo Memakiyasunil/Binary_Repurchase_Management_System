@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:6
+    container_name: binary_mlm_db
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    restart: unless-stopped
+
+  backend:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: binary_mlm_backend
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+      - MONGO_URI=mongodb://mongodb:27017/binary_mlm
+      - JWT_SECRET=supersecretjwtkey_binary_mlm
+      - JWT_EXPIRE=30d
+    depends_on:
+      - mongodb
+    restart: unless-stopped
+
+  seeder:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: binary_mlm_seeder
+    environment:
+      - MONGO_URI=mongodb://mongodb:27017/binary_mlm
+    command: node seeder.js
+    depends_on:
+      - mongodb
+    profiles:
+      - seeder
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: binary_mlm_frontend
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_URL=http://localhost:5000
+    depends_on:
+      - backend
+    volumes:
+      # Optional: bind mount src for hot-reloading if desired, though normally we don't map node_modules
+      - ./frontend/src:/app/src
+      - ./frontend/public:/app/public
+    restart: unless-stopped
+
+volumes:
+  mongodb_data:
