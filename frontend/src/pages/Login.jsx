@@ -239,7 +239,7 @@ const Login = () => {
                     <input type="checkbox" className="w-4 h-4 rounded border-gray-300 text-[#103A26] focus:ring-[#103A26]/30 cursor-pointer" />
                     <span className="text-xs font-bold text-gray-500 group-hover:text-gray-700 transition-colors">Remember me</span>
                   </label>
-                  <a href="#" className="text-xs font-bold text-[#103A26] hover:text-[#103A26]/70 transition-colors self-start sm:self-auto">Forgot Password?</a>
+                  <Link to="/forgot-password" className="text-xs font-bold text-[#103A26] hover:text-[#103A26]/70 transition-colors self-start sm:self-auto">Forgot Password?</Link>
                 </div>
 
                 <button

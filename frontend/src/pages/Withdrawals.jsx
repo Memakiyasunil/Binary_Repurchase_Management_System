@@ -1,55 +1,63 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   ArrowDownToLine, Banknote, Clock, CheckCircle2, 
   AlertCircle, ChevronRight, Lock, Building
 } from 'lucide-react';
 import toast from 'react-hot-toast';
-
-const withdrawals = [
-  { id: 'WD-5542', amount: '₹15,000', method: 'Bank Transfer (HDFC ****4455)', date: 'Oct 24, 2026', status: 'Pending' },
-  { id: 'WD-5521', amount: '₹25,000', method: 'Bank Transfer (HDFC ****4455)', date: 'Oct 18, 2026', status: 'Approved' },
-  { id: 'WD-5410', amount: '₹8,500', method: 'Bank Transfer (HDFC ****4455)', date: 'Oct 05, 2026', status: 'Approved' },
-  { id: 'WD-5201', amount: '₹50,000', method: 'Bank Transfer (HDFC ****4455)', date: 'Sep 28, 2026', status: 'Rejected', reason: 'KYC not verified at time of request.' },
-];
+import { withdrawalService, walletService } from '../features/apiService';
 
 const Withdrawals = () => {
+  const [withdrawals, setWithdrawals] = useState([]);
+  const [wallet, setWallet] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [amount, setAmount] = useState('');
-  const [step, setStep] = useState(1);
-  const [otp, setOtp] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleRequestWithdrawal = (e) => {
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      const [wdData, walletData] = await Promise.all([
+        withdrawalService.getUserWithdrawals({ limit: 50 }),
+        walletService.getWallet()
+      ]);
+      setWithdrawals(wdData.withdrawals || []);
+      setWallet(walletData.wallet);
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to fetch withdrawal data');
+    }
+    setIsLoading(false);
+  };
+
+  const handleRequestWithdrawal = async (e) => {
     e.preventDefault();
     if (!amount || amount < 1000) {
       toast.error('Minimum withdrawal amount is ₹1,000');
       return;
     }
-    
-    const loadingToast = toast.loading('Initiating secure withdrawal...');
-    
-    setTimeout(() => {
-      toast.dismiss(loadingToast);
-      setStep(2); // Move to OTP step
-      toast.success('OTP sent to registered email.', { icon: '📧' });
-    }, 1500);
-  };
-
-  const handleVerifyOtp = (e) => {
-    e.preventDefault();
-    if (otp.length !== 6) {
-      toast.error('Please enter a valid 6-digit OTP');
+    if (amount > (wallet?.balance || 0)) {
+      toast.error('Insufficient wallet balance');
       return;
     }
     
-    const loadingToast = toast.loading('Verifying secure token...');
+    setIsSubmitting(true);
+    const loadingToast = toast.loading('Initiating secure withdrawal...');
     
-    setTimeout(() => {
+    try {
+      await withdrawalService.requestWithdrawal({ amount: Number(amount) });
       toast.dismiss(loadingToast);
-      setStep(1);
-      setAmount('');
-      setOtp('');
       toast.success('Withdrawal request submitted successfully! It is now pending admin approval.');
-    }, 2000);
+      setAmount('');
+      fetchData(); // Refresh list and balance
+    } catch (err) {
+      toast.dismiss(loadingToast);
+      toast.error(err.message || 'Failed to submit withdrawal');
+    }
+    setIsSubmitting(false);
   };
 
   const getStatusBadge = (status) => {
@@ -65,11 +73,20 @@ const Withdrawals = () => {
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="space-y-4 pt-6 max-w-6xl mx-auto">
+        <div className="h-20 bg-white/50 animate-pulse rounded-2xl" />
+        <div className="h-64 bg-white/50 animate-pulse rounded-[24px]" />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6 pb-10 animate-fade-in max-w-6xl mx-auto">
       
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2 mt-4">
         <div>
           <h1 className="text-3xl font-serif font-bold text-brown-dark flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-copper/10 flex items-center justify-center text-copper">
@@ -93,147 +110,132 @@ const Withdrawals = () => {
                 <Banknote size={18} className="text-emerald-deep" />
                 Request Payout
               </h2>
-              <p className="text-xs text-gray-400 mt-1">Available Balance: <strong className="text-emerald-deep">₹1,45,250.00</strong></p>
+              <p className="text-xs text-gray-400 mt-1">Available Balance: <strong className="text-emerald-deep">₹{(wallet?.balance || 0).toLocaleString('en-IN')}</strong></p>
             </div>
             
-            <div className="p-6 relative overflow-hidden min-h-[300px]">
+            <div className="p-6 relative overflow-hidden min-h-[250px]">
               <AnimatePresence mode="wait">
-                
-                {step === 1 && (
-                  <motion.form 
-                    key="step1"
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: 20 }}
-                    className="space-y-5"
-                    onSubmit={handleRequestWithdrawal}
-                  >
+                <motion.form 
+                  key="step1"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 20 }}
+                  onSubmit={handleRequestWithdrawal} 
+                  className="space-y-5"
+                >
+                  <div className="space-y-1.5">
+                    <label className="block text-[10px] font-bold uppercase tracking-widest text-brown-dark/70 pl-1">Withdrawal Amount (₹)</label>
                     <div className="relative group">
-                      <label className="block text-[10px] font-bold uppercase tracking-widest text-brown-dark/50 mb-2 pl-1">Amount to Withdraw (₹)</label>
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-amber-gold font-bold">
+                        ₹
+                      </div>
                       <input
                         type="number"
+                        min="1000"
                         value={amount}
                         onChange={(e) => setAmount(e.target.value)}
-                        className="w-full px-4 py-3.5 rounded-2xl bg-ivory/50 border border-beige-soft text-brown-dark focus:bg-white focus:border-emerald-deep/50 focus:ring-4 focus:ring-emerald-deep/10 transition-all font-bold text-lg"
-                        placeholder="0.00"
+                        className="w-full pl-8 pr-4 py-3.5 rounded-xl bg-gray-50 border border-gray-200 text-brown-dark focus:bg-white focus:border-amber-gold focus:ring-1 focus:ring-amber-gold transition-all font-bold text-[18px] outline-none"
+                        placeholder="Enter amount"
+                        required
                       />
                     </div>
-                    
-                    <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100">
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-brown-dark/50 mb-2">Payout Method</p>
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center text-gray-400 border border-gray-100">
-                          <Building size={14} />
-                        </div>
-                        <div>
-                          <p className="text-sm font-bold text-brown-dark">HDFC Bank</p>
-                          <p className="text-xs text-gray-500">**** **** **** 4455</p>
-                        </div>
-                      </div>
+                    <p className="text-[10px] text-gray-400 pl-1 flex items-center gap-1">
+                      <AlertCircle size={10} /> Minimum withdrawal: ₹1,000
+                    </p>
+                  </div>
+
+                  <div className="bg-amber-gold/5 border border-amber-gold/10 p-3 rounded-xl flex gap-3 items-start">
+                    <Building className="text-amber-gold shrink-0 mt-0.5" size={16} />
+                    <div>
+                      <p className="text-xs font-bold text-brown-dark">Bank Transfer Setup</p>
+                      <p className="text-[10px] text-gray-500 mt-0.5">Funds will be transferred to your verified primary bank account on file.</p>
                     </div>
+                  </div>
 
-                    <button 
-                      type="submit"
-                      className="w-full bg-emerald-deep text-white py-3.5 rounded-2xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-emerald-deep/20 hover:bg-[#0c5c56] transition-all"
-                    >
-                      Continue <ChevronRight size={16} />
-                    </button>
-                    <p className="text-[10px] text-center text-gray-400">Standard processing time: 24-48 business hours.</p>
-                  </motion.form>
-                )}
-
-                {step === 2 && (
-                  <motion.form 
-                    key="step2"
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: 20 }}
-                    className="space-y-5 flex flex-col h-full justify-center"
-                    onSubmit={handleVerifyOtp}
+                  <button
+                    type="submit"
+                    disabled={isSubmitting || !amount}
+                    className="w-full bg-gradient-to-r from-amber-gold to-[#c26a05] text-white py-3.5 mt-2 rounded-xl font-bold flex justify-center items-center gap-2 shadow-lg shadow-amber-gold/20 hover:shadow-xl hover:shadow-amber-gold/30 hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:hover:translate-y-0 disabled:cursor-not-allowed"
                   >
-                    <div className="text-center mb-4">
-                      <div className="w-12 h-12 rounded-full bg-amber-gold/10 text-amber-gold flex items-center justify-center mx-auto mb-3">
-                        <Lock size={20} />
-                      </div>
-                      <h3 className="font-bold text-brown-dark">Security Verification</h3>
-                      <p className="text-xs text-gray-500 mt-1">Enter the 6-digit OTP sent to your registered email address to authorize ₹{amount}.</p>
-                    </div>
-
-                    <div className="relative group">
-                      <input
-                        type="text"
-                        maxLength="6"
-                        value={otp}
-                        onChange={(e) => setOtp(e.target.value)}
-                        className="w-full px-4 py-4 rounded-2xl bg-ivory/50 border border-amber-gold/30 text-brown-dark focus:bg-white focus:border-amber-gold focus:ring-4 focus:ring-amber-gold/10 transition-all font-bold text-2xl tracking-[0.5em] text-center"
-                        placeholder="••••••"
-                      />
-                    </div>
-
-                    <div className="flex gap-3">
-                      <button 
-                        type="button"
-                        onClick={() => setStep(1)}
-                        className="flex-1 bg-gray-100 text-gray-600 py-3.5 rounded-2xl font-bold hover:bg-gray-200 transition-colors"
-                      >
-                        Cancel
-                      </button>
-                      <button 
-                        type="submit"
-                        className="flex-[2] bg-amber-gold text-white py-3.5 rounded-2xl font-bold shadow-lg shadow-amber-gold/20 hover:bg-[#c26a05] transition-colors"
-                      >
-                        Verify & Submit
-                      </button>
-                    </div>
-                  </motion.form>
-                )}
-
+                    {isSubmitting ? 'Processing...' : 'Proceed to Withdraw'} <ChevronRight size={16} />
+                  </button>
+                </motion.form>
               </AnimatePresence>
+            </div>
+            <div className="bg-gray-50 p-4 border-t border-gray-100 flex items-center justify-center gap-2">
+              <Lock size={12} className="text-gray-400" />
+              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">End-to-End Encrypted</span>
             </div>
           </motion.div>
         </div>
 
-        {/* History Table Widget */}
+        {/* Withdrawals List */}
         <div className="lg:col-span-2">
-          <div className="bg-white rounded-[24px] shadow-[0_4px_24px_-4px_rgba(0,0,0,0.02)] border border-gray-100 overflow-hidden h-full">
-            <div className="p-6 border-b border-gray-50 flex justify-between items-center">
-              <h2 className="font-bold text-brown-dark">Recent Withdrawals</h2>
-              <button className="text-xs text-emerald-deep font-bold hover:underline">View All</button>
+          <div className="bg-white rounded-[24px] shadow-[0_4px_24px_-4px_rgba(0,0,0,0.02)] border border-gray-100 overflow-hidden">
+            <div className="p-6 border-b border-gray-100 bg-gray-50/50 flex justify-between items-center">
+              <h3 className="font-bold text-brown-dark text-lg">Withdrawal History</h3>
             </div>
             
-            <div className="overflow-x-auto touch-scroll">
-              <table className="w-full text-sm text-left min-w-[500px]">
-                <thead className="text-[10px] uppercase tracking-widest text-gray-400 bg-gray-50/50">
-                  <tr>
-                    <th className="px-6 py-4 font-bold">Req ID</th>
-                    <th className="px-6 py-4 font-bold">Amount</th>
-                    <th className="px-6 py-4 font-bold">Date</th>
-                    <th className="px-6 py-4 font-bold">Status</th>
-                  </tr>
-                </thead>
-                <tbody>
+            <div className="p-6">
+              {withdrawals.length === 0 ? (
+                <div className="text-center py-10">
+                  <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4 border border-gray-100">
+                    <Banknote size={24} className="text-gray-300" />
+                  </div>
+                  <h3 className="text-lg font-bold text-brown-dark mb-1">No Withdrawals Yet</h3>
+                  <p className="text-gray-500 text-sm">You haven't made any withdrawal requests.</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
                   {withdrawals.map((wd, index) => (
-                    <motion.tr 
+                    <motion.div 
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.1 }}
-                      key={wd.id} 
-                      className="border-b border-gray-50 hover:bg-cream/30 transition-colors group"
+                      transition={{ delay: index * 0.05 }}
+                      key={wd._id} 
+                      className="border border-gray-100 rounded-2xl p-5 hover:border-emerald-deep/20 hover:shadow-md transition-all group bg-white relative overflow-hidden"
                     >
-                      <td className="px-6 py-5">
-                        <div className="font-bold text-brown-dark">{wd.id}</div>
-                        <div className="text-[10px] text-gray-400 mt-0.5">{wd.method}</div>
-                      </td>
-                      <td className="px-6 py-5 font-bold text-brown-dark text-base">{wd.amount}</td>
-                      <td className="px-6 py-5 text-gray-500 font-medium">{wd.date}</td>
-                      <td className="px-6 py-5">
-                        {getStatusBadge(wd.status)}
-                        {wd.reason && <p className="text-[10px] text-ruby-red mt-1 max-w-[150px] leading-tight">{wd.reason}</p>}
-                      </td>
-                    </motion.tr>
+                      {/* Left color bar accent */}
+                      <div className={`absolute left-0 top-0 bottom-0 w-1 ${
+                        wd.status === 'Approved' ? 'bg-emerald-success' : 
+                        wd.status === 'Rejected' ? 'bg-ruby-red' : 'bg-amber-gold'
+                      }`}></div>
+                      
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div>
+                          <div className="flex items-center gap-3 mb-1">
+                            <span className="font-bold text-lg text-brown-dark">₹{wd.amount.toLocaleString('en-IN')}</span>
+                            {getStatusBadge(wd.status)}
+                          </div>
+                          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-gray-500 font-medium">
+                            <span>Req ID: {wd._id.slice(-8).toUpperCase()}</span>
+                            <span className="hidden sm:inline w-1 h-1 rounded-full bg-gray-300"></span>
+                            <span>{new Date(wd.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric'})}</span>
+                            <span className="hidden sm:inline w-1 h-1 rounded-full bg-gray-300"></span>
+                            <span>{wd.paymentMethod || 'Bank Transfer'}</span>
+                          </div>
+                        </div>
+                        
+                        <div className="text-right">
+                          <button className="text-[10px] font-bold uppercase tracking-widest text-emerald-deep bg-emerald-deep/5 px-3 py-1.5 rounded-lg hover:bg-emerald-deep/10 transition-colors">
+                            View Details
+                          </button>
+                        </div>
+                      </div>
+                      
+                      {wd.status === 'Rejected' && wd.adminNote && (
+                        <div className="mt-4 bg-ruby-red/5 border border-ruby-red/10 rounded-xl p-3 flex gap-2 items-start">
+                          <AlertCircle size={14} className="text-ruby-red shrink-0 mt-0.5" />
+                          <div>
+                            <span className="text-[10px] font-bold text-ruby-red uppercase tracking-wider block mb-0.5">Rejection Reason</span>
+                            <span className="text-xs text-gray-600">{wd.adminNote}</span>
+                          </div>
+                        </div>
+                      )}
+                    </motion.div>
                   ))}
-                </tbody>
-              </table>
+                </div>
+              )}
             </div>
           </div>
         </div>

@@ -1,21 +1,32 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { 
-  Wallet as WalletIcon, ArrowUpRight, ArrowDownRight, RefreshCw, 
-  Send, Plus, ShieldCheck, History
+  Wallet as WalletIcon, ArrowUpRight, ArrowDownRight,
+  Send, Plus, ShieldCheck, History, Download
 } from 'lucide-react';
 import toast from 'react-hot-toast';
-
-const transactions = [
-  { id: 'TXN-9823', type: 'credit', amount: '₹12,500', desc: 'Binary Matching Bonus', date: 'Oct 24, 2026', time: '14:30' },
-  { id: 'TXN-9822', type: 'credit', amount: '₹5,000', desc: 'Direct Referral (User BR882)', date: 'Oct 23, 2026', time: '09:15' },
-  { id: 'TXN-9821', type: 'debit', amount: '₹8,000', desc: 'Withdrawal to Bank ****4455', date: 'Oct 21, 2026', time: '11:45' },
-  { id: 'TXN-9820', type: 'credit', amount: '₹2,500', desc: 'Repurchase Commission', date: 'Oct 20, 2026', time: '16:20' },
-  { id: 'TXN-9819', type: 'debit', amount: '₹1,500', desc: 'Store Purchase (Order #992)', date: 'Oct 18, 2026', time: '10:05' },
-];
+import { walletService } from '../features/apiService';
 
 const Wallet = () => {
-  const [activeTab, setActiveTab] = useState('history');
+  const [wallet, setWallet] = useState(null);
+  const [history, setHistory] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  
+  useEffect(() => {
+    fetchWalletData();
+  }, []);
+
+  const fetchWalletData = async () => {
+    try {
+      const data = await walletService.getWallet();
+      setWallet(data.wallet);
+      setHistory(data.history || []);
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to load wallet data');
+    }
+    setIsLoading(false);
+  };
   
   const handleAddFunds = () => {
     toast.success('Fund request initiated. Awaiting gateway redirect.', { icon: '💳' });
@@ -25,11 +36,20 @@ const Wallet = () => {
     toast('P2P Transfer module locked until KYC verification.', { icon: '🔒' });
   };
 
+  if (isLoading) {
+    return (
+      <div className="space-y-4 pt-6 max-w-6xl mx-auto">
+        <div className="h-48 bg-white/50 animate-pulse rounded-[24px]" />
+        <div className="h-64 bg-white/50 animate-pulse rounded-[24px]" />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6 pb-10 animate-fade-in max-w-6xl mx-auto">
       
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2 mt-4">
         <div>
           <h1 className="text-3xl font-serif font-bold text-brown-dark flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-amber-gold/10 flex items-center justify-center text-amber-gold">
@@ -58,10 +78,9 @@ const Wallet = () => {
             <div className="flex justify-between items-start mb-8">
               <div>
                 <p className="text-ivory/60 text-sm font-medium tracking-wide uppercase mb-1">Available Balance</p>
-                <h2 className="text-5xl font-serif font-bold text-white tracking-tight">₹1,45,250<span className="text-2xl text-ivory/50">.00</span></h2>
-              </div>
-              <div className="flex items-center gap-2 bg-emerald-success/20 text-emerald-success px-3 py-1 rounded-full text-xs font-bold border border-emerald-success/30">
-                <ArrowUpRight size={14} /> +12.5% This Week
+                <h2 className="text-4xl md:text-5xl font-serif font-bold text-white tracking-tight">
+                  ₹{(wallet?.balance || 0).toLocaleString('en-IN')}
+                </h2>
               </div>
             </div>
             
@@ -98,113 +117,73 @@ const Wallet = () => {
               <p className="text-xs text-emerald-success font-medium">Protected (256-bit AES)</p>
             </div>
           </div>
-          
+
           <div className="space-y-4 flex-1">
-            <div className="flex justify-between items-center pb-3 border-b border-gray-50">
-              <span className="text-sm text-gray-500">2FA Status</span>
-              <span className="text-sm font-bold text-brown-dark bg-gray-100 px-3 py-1 rounded-full">Enabled</span>
+            <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
+              <p className="text-xs text-gray-500 mb-1">Total Earnings</p>
+              <p className="text-xl font-bold text-emerald-600">₹{(wallet?.totalEarnings || 0).toLocaleString('en-IN')}</p>
             </div>
-            <div className="flex justify-between items-center pb-3 border-b border-gray-50">
-              <span className="text-sm text-gray-500">KYC Status</span>
-              <span className="text-sm font-bold text-amber-gold bg-amber-gold/10 px-3 py-1 rounded-full">Pending</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-500">Daily Limit</span>
-              <span className="text-sm font-bold text-brown-dark">₹1,00,000</span>
+            <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
+              <p className="text-xs text-gray-500 mb-1">Pending Withdrawals</p>
+              <p className="text-xl font-bold text-amber-600">₹{(wallet?.pendingWithdrawals || 0).toLocaleString('en-IN')}</p>
             </div>
           </div>
         </motion.div>
       </div>
 
-      {/* Main Content Area */}
-      <div className="bg-white rounded-[24px] shadow-[0_4px_24px_-4px_rgba(0,0,0,0.02)] border border-gray-100 overflow-hidden">
+      {/* Transactions History */}
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+        className="bg-white rounded-[24px] shadow-[0_4px_24px_-4px_rgba(0,0,0,0.02)] border border-gray-100 overflow-hidden"
+      >
+        <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+          <div className="flex items-center gap-2">
+            <History className="text-amber-gold" size={18} />
+            <h3 className="font-bold text-brown-dark text-lg">Transaction History</h3>
+          </div>
+          <button className="flex items-center gap-2 text-xs font-bold text-emerald-deep bg-emerald-deep/10 px-4 py-2 rounded-lg hover:bg-emerald-deep/20 transition-colors">
+            <Download size={14} /> Download Statement
+          </button>
+        </div>
         
-        {/* Tabs */}
-        <div className="flex border-b border-gray-100 px-2 overflow-x-auto touch-scroll whitespace-nowrap">
-          <button 
-            className={`px-6 py-4 text-sm font-bold border-b-2 transition-colors ${activeTab === 'history' ? 'border-amber-gold text-amber-gold' : 'border-transparent text-gray-400 hover:text-brown-dark'}`}
-            onClick={() => setActiveTab('history')}
-          >
-            Transaction History
-          </button>
-          <button 
-            className={`px-6 py-4 text-sm font-bold border-b-2 transition-colors ${activeTab === 'statements' ? 'border-amber-gold text-amber-gold' : 'border-transparent text-gray-400 hover:text-brown-dark'}`}
-            onClick={() => setActiveTab('statements')}
-          >
-            Monthly Statements
-          </button>
-        </div>
-
-        {/* Tab Content */}
         <div className="p-6">
-          {activeTab === 'history' && (
-            <div className="space-y-1">
-              <div className="flex justify-between items-center mb-6 px-2">
-                <h3 className="font-bold text-brown-dark flex items-center gap-2">
-                  <History size={16} className="text-amber-gold" />
-                  Recent Activity
-                </h3>
-                <button className="text-xs text-amber-gold font-bold flex items-center gap-1 hover:underline">
-                  <RefreshCw size={12} /> Refresh
-                </button>
-              </div>
-
-              <div className="overflow-x-auto touch-scroll">
-                <table className="w-full text-sm text-left min-w-[600px]">
-                  <thead className="text-xs text-gray-400 uppercase bg-gray-50/50 rounded-t-xl">
-                    <tr>
-                      <th className="px-6 py-4 font-medium rounded-tl-xl">Transaction ID</th>
-                      <th className="px-6 py-4 font-medium">Date & Time</th>
-                      <th className="px-6 py-4 font-medium">Description</th>
-                      <th className="px-6 py-4 font-medium">Amount</th>
-                      <th className="px-6 py-4 font-medium rounded-tr-xl">Status</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {transactions.map((txn, index) => (
-                      <motion.tr 
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: index * 0.05 }}
-                        key={txn.id} 
-                        className="border-b border-gray-50 hover:bg-cream/30 transition-colors group"
-                      >
-                        <td className="px-6 py-4 font-bold text-brown-dark">{txn.id}</td>
-                        <td className="px-6 py-4">
-                          <div className="text-brown-dark font-medium">{txn.date}</div>
-                          <div className="text-[10px] text-gray-400">{txn.time}</div>
-                        </td>
-                        <td className="px-6 py-4 text-gray-600">{txn.desc}</td>
-                        <td className="px-6 py-4">
-                          <span className={`font-bold flex items-center gap-1 ${txn.type === 'credit' ? 'text-emerald-success' : 'text-brown-dark'}`}>
-                            {txn.type === 'credit' ? <ArrowDownRight size={14} /> : <ArrowUpRight size={14} />}
-                            {txn.amount}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4">
-                          <span className="bg-emerald-success/10 text-emerald-success px-3 py-1 rounded-full text-[10px] font-bold">
-                            Completed
-                          </span>
-                        </td>
-                      </motion.tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+          {history.length === 0 ? (
+            <div className="text-center py-10">
+              <p className="text-gray-500">No transactions found</p>
             </div>
-          )}
-
-          {activeTab === 'statements' && (
-            <div className="flex flex-col items-center justify-center py-12 text-center">
-              <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4 border border-gray-100">
-                <History size={24} className="text-gray-300" />
-              </div>
-              <h3 className="text-lg font-bold text-brown-dark mb-2">No Statements Generated Yet</h3>
-              <p className="text-gray-500 text-sm max-w-md">Monthly statements are generated automatically on the 1st of every month summarizing all your wallet activity.</p>
+          ) : (
+            <div className="space-y-4">
+              {history.map((txn, i) => (
+                <div key={i} className="flex items-center justify-between p-4 rounded-xl border border-gray-100 hover:border-emerald-success/30 hover:shadow-md transition-all group bg-white">
+                  <div className="flex items-center gap-4">
+                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${
+                      txn.type === 'credit' ? 'bg-emerald-success/10 text-emerald-success' : 'bg-red-500/10 text-red-500'
+                    }`}>
+                      {txn.type === 'credit' ? <ArrowDownRight size={20} /> : <ArrowUpRight size={20} />}
+                    </div>
+                    <div>
+                      <p className="font-bold text-brown-dark text-sm mb-1">{txn.description}</p>
+                      <div className="flex items-center gap-2 text-[11px] text-gray-500 font-medium">
+                        <span>{new Date(txn.createdAt).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric'})}</span>
+                        <span className="w-1 h-1 rounded-full bg-gray-300"></span>
+                        <span className="uppercase tracking-widest text-amber-gold">{txn.transactionType || txn.type}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className={`font-bold text-lg ${txn.type === 'credit' ? 'text-emerald-success' : 'text-red-500'}`}>
+                      {txn.type === 'credit' ? '+' : '-'}₹{txn.amount.toLocaleString('en-IN')}
+                    </p>
+                    <p className="text-[10px] text-gray-400 font-medium mt-1 uppercase">ID: {txn._id.slice(-6).toUpperCase()}</p>
+                  </div>
+                </div>
+              ))}
             </div>
           )}
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 };

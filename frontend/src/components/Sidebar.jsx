@@ -1,7 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from '../context/ThemeContext';
-import { LayoutDashboard, ShoppingBag, Network, Wallet, TrendingUp, CreditCard, ShieldCheck, LifeBuoy, X } from 'lucide-react';
+import { LayoutDashboard, ShoppingBag, Network, Wallet, TrendingUp, CreditCard, ShieldCheck, LifeBuoy, X, User, Bell, Share2, ClipboardList } from 'lucide-react';
 
 const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
   const location = useLocation();
@@ -10,13 +10,18 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
   const navItems = [
     { name: 'Dashboard', path: '/dashboard', icon: <LayoutDashboard size={20} /> },
     { name: 'Store', path: '/store', icon: <ShoppingBag size={20} /> },
+    { name: 'My Orders', path: '/orders', icon: <ClipboardList size={20} /> },
     { name: 'Genealogy', path: '/tree', icon: <Network size={20} /> },
+    { name: 'Referral', path: '/referral', icon: <Share2 size={20} /> },
     { name: 'Wallet', path: '/wallet', icon: <Wallet size={20} /> },
     { name: 'Income', path: '/reports', icon: <TrendingUp size={20} /> },
     { name: 'Withdrawals', path: '/withdrawals', icon: <CreditCard size={20} /> },
     { name: 'KYC Verification', path: '/kyc', icon: <ShieldCheck size={20} /> },
     { name: 'Support Desk', path: '/support', icon: <LifeBuoy size={20} /> },
+    { name: 'Notifications', path: '/notifications', icon: <Bell size={20} /> },
+    { name: 'My Profile', path: '/profile', icon: <User size={20} /> },
   ];
+
 
   return (
     <>
