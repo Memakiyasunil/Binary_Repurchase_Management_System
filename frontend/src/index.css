@@ -1,31 +1,69 @@
 @import "tailwindcss";
 
-:root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+@theme {
+  --color-emerald-deep: #0F766E;
+  --color-green-forest: #166534;
+  --color-amber-gold: #D97706;
+  --color-copper: #B45309;
+  --color-ivory: #FFFDF7;
+  --color-cream: #FFFBEB;
+  --color-olive-deep: #3F6212;
+  --color-beige-soft: #E7D7B1;
+  --color-brown-dark: #3A2F2A;
+  
+  --color-ruby-red: #BE123C;
+  --color-emerald-success: #10B981;
+}
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
+body {
+  @apply bg-ivory text-brown-dark;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
+/* Glassmorphism Utilities */
+.glass-premium {
+  @apply bg-cream/70 backdrop-blur-xl border border-beige-soft shadow-[0_8px_30px_rgb(0,0,0,0.04)];
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
+.glass-card-luxury {
+  @apply bg-cream/90 backdrop-blur-md border border-beige-soft/50 rounded-[20px] shadow-[0_4px_24px_-4px_rgba(0,0,0,0.03)] transition-all duration-500 hover:shadow-[0_20px_40px_-8px_rgba(15,118,110,0.08)] hover:-translate-y-1;
+}
+
+.luxury-button {
+  @apply relative overflow-hidden rounded-[16px] font-medium transition-all duration-300 shadow-[0_4px_14px_0_rgba(15,118,110,0.2)] hover:shadow-[0_6px_20px_rgba(15,118,110,0.3)] hover:-translate-y-0.5 active:translate-y-0 active:shadow-none;
+}
+
+/* Gradient Texts */
+.text-gradient-gold {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-amber-gold to-copper;
+}
+
+/* Scrollbar styling for enterprise mode */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent; 
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-beige-soft rounded-full;
+}
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-amber-gold/50;
+}
+
+/* Custom Selection */
+::selection {
+  @apply bg-emerald-deep/20 text-emerald-deep;
+}
+
+/* Remove all blue focus rings globally */
+*:focus {
+  @apply outline-none ring-0;
+}
+*:focus-visible {
+  @apply ring-2 ring-emerald-deep/50 outline-none;
 }

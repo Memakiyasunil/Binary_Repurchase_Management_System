@@ -7,6 +7,11 @@ const userSchema = new mongoose.Schema({
   role: { type: String, enum: ['admin', 'user'], default: 'user' },
   status: { type: String, enum: ['active', 'inactive', 'suspended', 'blocked'], default: 'inactive' },
   
+  // OTP Fields
+  otp: { type: String },
+  otpExpires: { type: Date },
+  isVerified: { type: Boolean, default: false },
+  
   // Profile Fields
   firstName: { type: String, required: true },
   lastName: { type: String },

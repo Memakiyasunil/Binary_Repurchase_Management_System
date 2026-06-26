@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { register, reset } from '../features/auth/authSlice';
-import { UserPlus } from 'lucide-react';
+import { register, verifyOTP, reset } from '../features/auth/authSlice';
+import { UserPlus, Mail } from 'lucide-react';
 
 const Register = () => {
   const [searchParams] = useSearchParams();
@@ -20,26 +20,29 @@ const Register = () => {
     position: positionParam,
   });
 
+  const [otpValue, setOtpValue] = useState('');
+
   const { username, firstName, email, mobile, password, confirmPassword, sponsorUsername, position } = formData;
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const { user, isLoading, isError, isSuccess, message } = useSelector(
+  const { user, registeredEmail, isLoading, isError, isSuccess, message } = useSelector(
     (state) => state.auth
   );
 
   useEffect(() => {
     if (isError) {
       alert(message); // Temporary error handling
+      dispatch(reset());
     }
 
-    if (isSuccess || user) {
+    if (user) {
       navigate('/dashboard');
     }
-
-    dispatch(reset());
-  }, [user, isError, isSuccess, message, navigate, dispatch]);
+    
+    // We do NOT reset here if isSuccess because we need registeredEmail to stay for the OTP screen
+  }, [user, isError, message, navigate, dispatch]);
 
   const onChange = (e) => {
     setFormData((prevState) => ({
@@ -69,8 +72,55 @@ const Register = () => {
     dispatch(register(userData));
   };
 
+  const onVerifyOTP = (e) => {
+    e.preventDefault();
+    if (!otpValue) {
+      alert('Please enter OTP');
+      return;
+    }
+    
+    dispatch(verifyOTP({ email: registeredEmail, otp: otpValue }));
+  };
+
   if (isLoading) {
     return <div className="flex justify-center items-center h-screen text-white">Loading...</div>;
+  }
+
+  // OTP Verification View
+  if (registeredEmail) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#1a1a1a] p-4">
+        <div className="max-w-md w-full bg-[#242424] rounded-xl shadow-2xl p-8 border border-gray-800">
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-600/20 text-green-500 mb-4">
+              <Mail size={32} />
+            </div>
+            <h2 className="text-3xl font-bold text-white">Verify Email</h2>
+            <p className="text-gray-400 mt-2">Enter the 6-digit OTP sent to {registeredEmail}</p>
+          </div>
+
+          <form onSubmit={onVerifyOTP} className="space-y-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">OTP Code</label>
+              <input
+                type="text"
+                value={otpValue}
+                onChange={(e) => setOtpValue(e.target.value)}
+                className="w-full px-4 py-3 rounded-lg bg-[#1a1a1a] border border-gray-700 text-white focus:outline-none focus:border-green-500 text-center tracking-widest text-2xl"
+                placeholder="XXXXXX"
+                required
+              />
+            </div>
+            <button
+              type="submit"
+              className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors flex justify-center items-center gap-2"
+            >
+              Verify Account
+            </button>
+          </form>
+        </div>
+      </div>
+    );
   }
 
   return (

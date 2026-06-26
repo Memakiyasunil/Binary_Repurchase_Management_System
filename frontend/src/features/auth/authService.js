@@ -16,7 +16,30 @@ const register = async (userData) => {
     throw new Error(data.message || 'Something went wrong');
   }
 
-  if (data) {
+  if (data && data.token) {
+    localStorage.setItem('user', JSON.stringify(data));
+  }
+
+  return data;
+};
+
+// Verify OTP
+const verifyOTP = async (verifyData) => {
+  const response = await fetch(API_URL + 'verify-otp', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(verifyData),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.message || 'Something went wrong');
+  }
+
+  if (data && data.token) {
     localStorage.setItem('user', JSON.stringify(data));
   }
 
@@ -53,6 +76,7 @@ const logout = () => {
 
 const authService = {
   register,
+  verifyOTP,
   logout,
   login,
 };
