@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate, Link } from 'react-router-dom';
 import { register, reset } from '../features/auth/authSlice';
 import Modal from '../components/Modal';
-import { UserPlus, Mail, Lock, User, Hash, AlertCircle, EyeOff, CheckCircle2, ShieldCheck, Globe, ChevronDown, BarChart3, Users } from 'lucide-react';
+import { UserPlus, Mail, Lock, User, Hash, AlertCircle, EyeOff, Eye, CheckCircle2, ShieldCheck, Globe, ChevronDown, BarChart3, Users } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const Register = () => {
@@ -24,6 +24,8 @@ const Register = () => {
     title: '',
     message: ''
   });
+
+  const [showPassword, setShowPassword] = useState(false);
 
   const { sponsorId, placement, username, firstName, lastName, email, password, otp } = formData;
 
@@ -323,7 +325,7 @@ const Register = () => {
                       </div>
                     </div>
                     <input
-                      type="password"
+                      type={showPassword ? "text" : "password"}
                       name="password"
                       value={password}
                       onChange={onChange}
@@ -332,8 +334,12 @@ const Register = () => {
                       required
                       disabled={isOtpSent}
                     />
-                    <button type="button" className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 transition-colors">
-                      <EyeOff size={16} />
+                    <button 
+                      type="button" 
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
+                    >
+                      {showPassword ? <Eye size={16} /> : <EyeOff size={16} />}
                     </button>
                   </div>
                 </div>

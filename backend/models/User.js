@@ -80,7 +80,9 @@ userSchema.pre('save', function(next) {
   if (!this.referralCode) {
     this.referralCode = 'BR' + this._id.toString().slice(-6).toUpperCase();
   }
-  next();
+  if (typeof next === 'function') {
+    next();
+  }
 });
 
 module.exports = mongoose.model('User', userSchema);

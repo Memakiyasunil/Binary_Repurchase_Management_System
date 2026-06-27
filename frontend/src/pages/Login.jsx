@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate, Link } from 'react-router-dom';
 import { login, reset } from '../features/auth/authSlice';
 import Modal from '../components/Modal';
-import { LogIn, Mail, Lock, EyeOff, CheckCircle2, ShieldCheck, Globe, ChevronDown, BarChart3, Users } from 'lucide-react';
+import { LogIn, Mail, Lock, EyeOff, Eye, CheckCircle2, ShieldCheck, Globe, ChevronDown, BarChart3, Users } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const Login = () => {
@@ -18,6 +18,8 @@ const Login = () => {
     title: '',
     message: ''
   });
+
+  const [showPassword, setShowPassword] = useState(false);
 
   const { username, password } = formData;
 
@@ -220,7 +222,7 @@ const Login = () => {
                       </div>
                     </div>
                     <input
-                      type="password"
+                      type={showPassword ? "text" : "password"}
                       name="password"
                       value={password}
                       onChange={onChange}
@@ -228,8 +230,12 @@ const Login = () => {
                       placeholder="Enter your password"
                       required
                     />
-                    <button type="button" className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 transition-colors">
-                      <EyeOff size={16} />
+                    <button 
+                      type="button" 
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
+                    >
+                      {showPassword ? <Eye size={16} /> : <EyeOff size={16} />}
                     </button>
                   </div>
                 </div>

@@ -25,6 +25,7 @@ const registerUser = async (req, res) => {
   const { username, password, firstName, lastName, email, sponsorId, placement } = req.body;
 
   if (!username || !password || !firstName || !email) {
+    console.log('400 ERROR: Missing required fields');
     return res.status(400).json({ message: 'Please add all required fields' });
   }
 
@@ -32,6 +33,7 @@ const registerUser = async (req, res) => {
     // Check if user exists
     const userExists = await User.findOne({ $or: [{ email }, { username }] });
     if (userExists) {
+      console.log('400 ERROR: User already exists');
       return res.status(400).json({ message: 'User already exists with this email or username' });
     }
 
@@ -41,14 +43,16 @@ const registerUser = async (req, res) => {
 
     // Verify Sponsor - accept either sponsorId (username) or referral code
     if (sponsorId) {
+      const trimmedSponsorId = sponsorId.trim();
       const sponsor = await User.findOne({
         $or: [
-          { username: sponsorId },
-          { referralCode: sponsorId },
-          { _id: sponsorId.match(/^[0-9a-fA-F]{24}$/) ? sponsorId : null }
+          { username: { $regex: new RegExp('^' + trimmedSponsorId + '$', 'i') } },
+          { referralCode: { $regex: new RegExp('^' + trimmedSponsorId + '$', 'i') } },
+          { _id: trimmedSponsorId.match(/^[0-9a-fA-F]{24}$/) ? trimmedSponsorId : null }
         ]
       });
       if (!sponsor) {
+        console.log('400 ERROR: Invalid Sponsor ID', trimmedSponsorId);
         return res.status(400).json({ message: 'Invalid Sponsor ID or Referral Code' });
       }
       sponsorDbId = sponsor._id;
