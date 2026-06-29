@@ -1,4 +1,4 @@
-const BASE = 'http://localhost:5000/api/';
+const BASE = `http://${window.location.hostname}:5000/api/`;
 
 const getAuthConfig = () => {
   const user = JSON.parse(localStorage.getItem('user'));
