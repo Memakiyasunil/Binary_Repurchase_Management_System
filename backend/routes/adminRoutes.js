@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getDashboardStats, getAllUsers, getUserById, updateUserStatus, createProduct, updateProduct, deleteProduct } = require('../controllers/adminController');
+const { getDashboardStats, getAllUsers, getUserById, updateUserStatus, createUser, updateUser, deleteUser, createProduct, updateProduct, deleteProduct } = require('../controllers/adminController');
 const { getAllWithdrawals, processWithdrawal } = require('../controllers/withdrawalController');
 const { getAllKyc, processKyc } = require('../controllers/kycController');
 const { getAllTickets } = require('../controllers/ticketController');
@@ -11,7 +11,10 @@ router.get('/stats', protect, admin, getDashboardStats);
 
 // Users
 router.get('/users', protect, admin, getAllUsers);
+router.post('/users', protect, admin, createUser);
 router.get('/users/:id', protect, admin, getUserById);
+router.put('/users/:id', protect, admin, updateUser);
+router.delete('/users/:id', protect, admin, deleteUser);
 router.put('/users/:id/status', protect, admin, updateUserStatus);
 
 // Withdrawals

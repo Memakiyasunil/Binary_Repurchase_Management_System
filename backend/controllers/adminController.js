@@ -6,6 +6,8 @@ const Income = require('../models/Income');
 const Kyc = require('../models/Kyc');
 const Ticket = require('../models/Ticket');
 const Notification = require('../models/Notification');
+const bcrypt = require('bcryptjs');
+const commissionService = require('../services/commissionService');
 
 // @desc    Get admin dashboard stats
 // @route   GET /api/admin/stats
@@ -219,11 +221,142 @@ const deleteProduct = async (req, res) => {
   }
 };
 
+// @desc    Admin: Create user directly
+// @route   POST /api/admin/users
+// @access  Private/Admin
+const createUser = async (req, res) => {
+  const { username, password, firstName, lastName, email, sponsorId, placement, role } = req.body;
+
+  if (!username || !password || !firstName || !email) {
+    return res.status(400).json({ message: 'Please add all required fields' });
+  }
+
+  try {
+    const userExists = await User.findOne({ $or: [{ email }, { username }] });
+    if (userExists) {
+      return res.status(400).json({ message: 'User already exists with this email or username' });
+    }
+
+    let sponsorDbId = null;
+    let uplineId = null;
+    let position = placement ? placement.toLowerCase() : 'left';
+
+    if (sponsorId) {
+      let trimmedSponsorId = sponsorId.trim();
+      if (trimmedSponsorId.startsWith('@')) {
+        trimmedSponsorId = trimmedSponsorId.substring(1);
+      }
+      const sponsor = await User.findOne({
+        $or: [
+          { username: { $regex: new RegExp('^' + trimmedSponsorId + '$', 'i') } },
+          { referralCode: { $regex: new RegExp('^' + trimmedSponsorId + '$', 'i') } },
+          { _id: trimmedSponsorId.match(/^[0-9a-fA-F]{24}$/) ? trimmedSponsorId : null }
+        ]
+      });
+      if (!sponsor) {
+        return res.status(400).json({ message: 'Invalid Sponsor ID or Referral Code' });
+      }
+      sponsorDbId = sponsor._id;
+
+      let currentNode = sponsor;
+      while (true) {
+        const child = await User.findOne({ uplineId: currentNode._id, position });
+        if (!child) {
+          uplineId = currentNode._id;
+          break;
+        }
+        currentNode = child;
+      }
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    const user = await User.create({
+      username,
+      firstName,
+      lastName,
+      email,
+      password: hashedPassword,
+      sponsorId: sponsorDbId,
+      uplineId,
+      position: sponsorDbId ? position : undefined,
+      role: role || 'user',
+      isVerified: true,
+      status: 'active'
+    });
+
+    if (user) {
+      await Wallet.create({ user: user._id });
+
+      if (user.sponsorId) {
+        await commissionService.processDirectReferralBonus(user.sponsorId, user._id);
+        await User.findByIdAndUpdate(user.sponsorId, { $inc: { totalDirectReferrals: 1 } });
+      }
+
+      res.status(201).json({ message: 'User created successfully', user: { _id: user._id, username: user.username, email: user.email } });
+    } else {
+      res.status(400).json({ message: 'Invalid user data' });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// @desc    Admin: Update user details
+// @route   PUT /api/admin/users/:id
+// @access  Private/Admin
+const updateUser = async (req, res) => {
+  const { firstName, lastName, email, role, status } = req.body;
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    user.firstName = firstName || user.firstName;
+    user.lastName = lastName || user.lastName;
+    user.email = email || user.email;
+    if (role) user.role = role;
+    if (status) user.status = status;
+
+    const updatedUser = await user.save();
+    res.json({ message: 'User updated successfully', user: { _id: updatedUser._id, username: updatedUser.username, email: updatedUser.email, role: updatedUser.role, status: updatedUser.status } });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// @desc    Admin: Delete user
+// @route   DELETE /api/admin/users/:id
+// @access  Private/Admin
+const deleteUser = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    // Ensure user has no downlines
+    const downlines = await User.countDocuments({ uplineId: user._id });
+    if (downlines > 0) {
+      return res.status(400).json({ message: 'Cannot delete user because they have placed downlines in the tree. You can block or suspend them instead.' });
+    }
+
+    await Wallet.deleteOne({ user: user._id });
+    await User.findByIdAndDelete(req.params.id);
+
+    res.json({ message: 'User deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
 module.exports = {
   getDashboardStats,
   getAllUsers,
   getUserById,
   updateUserStatus,
+  createUser,
+  updateUser,
+  deleteUser,
   createProduct,
   updateProduct,
   deleteProduct

@@ -1,7 +1,8 @@
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from '../context/ThemeContext';
-import { LayoutDashboard, ShoppingBag, Network, Wallet, TrendingUp, CreditCard, ShieldCheck, LifeBuoy, X, User, Bell, Share2, ClipboardList } from 'lucide-react';
+import { useSelector } from 'react-redux';
+import { LayoutDashboard, ShoppingBag, Network, Wallet, TrendingUp, CreditCard, ShieldCheck, LifeBuoy, X, User, Bell, Share2, ClipboardList, Users } from 'lucide-react';
 
 const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
   const location = useLocation();
@@ -21,6 +22,12 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
     { name: 'Notifications', path: '/notifications', icon: <Bell size={20} /> },
     { name: 'My Profile', path: '/profile', icon: <User size={20} /> },
   ];
+
+  const { user } = useSelector((state) => state.auth);
+  
+  if (user && user.role === 'admin') {
+    navItems.push({ name: 'Admin Users', path: '/admin/users', icon: <Users size={20} /> });
+  }
 
 
   return (

@@ -10,7 +10,7 @@ const Register = () => {
   const [searchParams] = useSearchParams();
   let urlRef = searchParams.get('ref');
   if (urlRef === 'undefined' || urlRef === 'null') urlRef = null;
-  
+
   let urlPlacement = searchParams.get('placement');
   if (urlPlacement === 'undefined' || urlPlacement === 'null') urlPlacement = null;
 
@@ -343,8 +343,8 @@ const Register = () => {
                       required
                       disabled={isOtpSent}
                     />
-                    <button 
-                      type="button" 
+                    <button
+                      type="button"
                       onClick={() => setShowPassword(!showPassword)}
                       className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
                     >

@@ -19,6 +19,7 @@ import Profile from './pages/Profile';
 import Orders from './pages/Orders';
 import Notifications from './pages/Notifications';
 import Referral from './pages/Referral';
+import AdminUsers from './pages/AdminUsers';
 import Layout from './components/Layout';
 import Background from './components/Background';
 import { Toaster } from 'react-hot-toast';
@@ -112,6 +113,7 @@ function App() {
                   <Route path="/orders" element={<Orders />} />
                   <Route path="/notifications" element={<Notifications />} />
                   <Route path="/referral" element={<Referral />} />
+                  <Route path="/admin/users" element={<AdminUsers />} />
                 </Route>
               </Routes>
             </motion.div>

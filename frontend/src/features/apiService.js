@@ -183,6 +183,24 @@ export const adminService = {
     if (!r.ok) throw new Error(d.message);
     return d;
   },
+  createUser: async (data) => {
+    const r = await fetch(`${BASE}admin/users`, { method: 'POST', body: JSON.stringify(data), ...getAuthConfig() });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.message);
+    return d;
+  },
+  updateUser: async (id, data) => {
+    const r = await fetch(`${BASE}admin/users/${id}`, { method: 'PUT', body: JSON.stringify(data), ...getAuthConfig() });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.message);
+    return d;
+  },
+  deleteUser: async (id) => {
+    const r = await fetch(`${BASE}admin/users/${id}`, { method: 'DELETE', ...getAuthConfig() });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.message);
+    return d;
+  },
   updateUserStatus: async (id, status) => {
     const r = await fetch(`${BASE}admin/users/${id}/status`, { method: 'PUT', body: JSON.stringify({ status }), ...getAuthConfig() });
     const d = await r.json();
