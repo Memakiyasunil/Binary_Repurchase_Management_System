@@ -197,7 +197,8 @@ const verifyOTP = async (req, res) => {
 // @route   POST /api/auth/login
 // @access  Public
 const loginUser = async (req, res) => {
-  const { username, password } = req.body;
+  let { username, password } = req.body;
+  if (username) username = username.trim();
 
   try {
     const user = await User.findOne({
