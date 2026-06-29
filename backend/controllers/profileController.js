@@ -100,8 +100,8 @@ const getReferralInfo = async (req, res) => {
       .sort({ createdAt: -1 });
 
     res.json({
-      referralCode: user.referralCode,
-      referralLink: `${process.env.CLIENT_URL || 'http://localhost:5173'}/register?ref=${user.referralCode}`,
+      referralCode: user.referralCode || user.username,
+      referralLink: `${process.env.CLIENT_URL || 'http://localhost:5173'}/register?ref=${user.referralCode || user.username}`,
       totalDirectReferrals: user.totalDirectReferrals,
       totalLeftMembers: user.totalLeftMembers,
       totalRightMembers: user.totalRightMembers,

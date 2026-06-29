@@ -1,15 +1,22 @@
 import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { register, reset } from '../features/auth/authSlice';
 import Modal from '../components/Modal';
 import { UserPlus, Mail, Lock, User, Hash, AlertCircle, EyeOff, Eye, CheckCircle2, ShieldCheck, Globe, ChevronDown, BarChart3, Users } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const Register = () => {
+  const [searchParams] = useSearchParams();
+  let urlRef = searchParams.get('ref');
+  if (urlRef === 'undefined' || urlRef === 'null') urlRef = null;
+  
+  let urlPlacement = searchParams.get('placement');
+  if (urlPlacement === 'undefined' || urlPlacement === 'null') urlPlacement = null;
+
   const [formData, setFormData] = useState({
-    sponsorId: '',
-    placement: 'Left',
+    sponsorId: urlRef || '',
+    placement: urlPlacement ? (urlPlacement.charAt(0).toUpperCase() + urlPlacement.slice(1).toLowerCase()) : 'Left',
     username: '',
     firstName: '',
     lastName: '',
@@ -225,8 +232,9 @@ const Register = () => {
                         name="sponsorId"
                         value={sponsorId}
                         onChange={onChange}
-                        className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 text-[#103A26] focus:border-emerald-deep focus:ring-1 focus:ring-emerald-deep transition-all font-medium text-[16px] sm:text-sm outline-none"
+                        className={`w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 text-[#103A26] focus:border-emerald-deep focus:ring-1 focus:ring-emerald-deep transition-all font-medium text-[16px] sm:text-sm outline-none ${urlRef ? 'bg-gray-100 text-gray-600 cursor-not-allowed' : ''}`}
                         placeholder="e.g. USER123"
+                        readOnly={!!urlRef}
                       />
                     </div>
                   </div>
@@ -237,7 +245,8 @@ const Register = () => {
                       name="placement"
                       value={placement}
                       onChange={onChange}
-                      className="w-full px-4 py-3 rounded-xl border border-gray-200 text-[#103A26] focus:border-emerald-deep focus:ring-1 focus:ring-emerald-deep transition-all font-medium text-[16px] sm:text-sm outline-none appearance-none bg-white"
+                      className={`w-full px-4 py-3 rounded-xl border border-gray-200 text-[#103A26] focus:border-emerald-deep focus:ring-1 focus:ring-emerald-deep transition-all font-medium text-[16px] sm:text-sm outline-none appearance-none ${urlPlacement ? 'bg-gray-100 text-gray-600 cursor-not-allowed' : 'bg-white'}`}
+                      disabled={!!urlPlacement}
                     >
                       <option value="Left">Left Leg</option>
                       <option value="Right">Right Leg</option>

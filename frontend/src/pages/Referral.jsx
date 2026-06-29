@@ -28,7 +28,7 @@ export default function Referral() {
     if (navigator.share) {
       navigator.share({
         title: 'Join Binary Repurchase MLM',
-        text: `Join me on Binary Repurchase and start your journey to financial freedom! Use my referral code: ${referralData?.referralCode}`,
+        text: `Join me on Binary Repurchase and start your journey to financial freedom! Use my Sponsor ID: ${referralData?.referralCode}`,
         url: referralData?.referralLink
       });
     } else {
@@ -73,9 +73,9 @@ export default function Referral() {
           <h3 className="text-3xl font-bold text-white mb-1">₹200 Per Referral</h3>
           <p className="text-white/60 text-sm">Earn instantly when your referral joins and verifies their account</p>
           
-          {/* Referral Code */}
+          {/* Referral Code / Sponsor ID */}
           <div className="mt-6 bg-white/10 rounded-xl p-4">
-            <p className="text-white/50 text-xs mb-1">Your Referral Code</p>
+            <p className="text-white/50 text-xs mb-1">Your Sponsor ID</p>
             <div className="flex items-center justify-between">
               <span className="text-2xl font-bold tracking-widest text-amber-400">{referralData?.referralCode}</span>
               <button
@@ -137,8 +137,8 @@ export default function Referral() {
         <h3 className="font-bold text-brown-dark mb-4">How Referral Works</h3>
         <div className="space-y-4">
           {[
-            { step: '1', title: 'Share Your Referral Link', desc: 'Share your unique referral code or link with friends and family' },
-            { step: '2', title: 'Friend Registers', desc: 'Your friend registers using your referral code and verifies their email' },
+            { step: '1', title: 'Share Your Referral Link', desc: 'Share your unique Sponsor ID or link with friends and family' },
+            { step: '2', title: 'Friend Registers', desc: 'Your friend registers using your Sponsor ID and verifies their email' },
             { step: '3', title: 'You Get ₹200', desc: 'Instantly receive ₹200 in your wallet as Direct Referral Bonus' },
             { step: '4', title: 'Build Your Tree', desc: 'Build your binary network and earn Binary Matching bonuses on their purchases' },
           ].map((item, i) => (

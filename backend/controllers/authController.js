@@ -43,7 +43,10 @@ const registerUser = async (req, res) => {
 
     // Verify Sponsor - accept either sponsorId (username) or referral code
     if (sponsorId) {
-      const trimmedSponsorId = sponsorId.trim();
+      let trimmedSponsorId = sponsorId.trim();
+      if (trimmedSponsorId.startsWith('@')) {
+        trimmedSponsorId = trimmedSponsorId.substring(1);
+      }
       const sponsor = await User.findOne({
         $or: [
           { username: { $regex: new RegExp('^' + trimmedSponsorId + '$', 'i') } },
