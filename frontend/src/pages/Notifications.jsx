@@ -47,7 +47,7 @@ export default function Notifications() {
   const handleDelete = async (id) => {
     try {
       const user = JSON.parse(localStorage.getItem('user'));
-      await fetch(`http://localhost:5000/api/notifications/${id}`, {
+      await fetch(`http://${window.location.hostname}:5000/api/notifications/${id}`, {
         method: 'DELETE', headers: { Authorization: `Bearer ${user?.token}` }
       });
       const wasUnread = notifications.find(n => n._id === id && !n.isRead);

@@ -20,7 +20,7 @@ export default function ForgotPassword() {
     e.preventDefault();
     setIsLoading(true); setError('');
     try {
-      const r = await fetch('http://localhost:5000/api/auth/forgot-password', {
+      const r = await fetch(`http://${window.location.hostname}:5000/api/auth/forgot-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email })
@@ -45,7 +45,7 @@ export default function ForgotPassword() {
     if (newPassword.length < 6) return setError('Password must be at least 6 characters');
     setIsLoading(true); setError('');
     try {
-      const r = await fetch('http://localhost:5000/api/auth/reset-password', {
+      const r = await fetch(`http://${window.location.hostname}:5000/api/auth/reset-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, otp, newPassword })

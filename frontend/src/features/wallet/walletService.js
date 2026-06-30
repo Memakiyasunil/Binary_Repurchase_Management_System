@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:5000/api/wallet/';
+const API_URL = `http://${window.location.hostname}:5000/api/wallet/`;
 
 const getAuthConfig = () => {
   const user = JSON.parse(localStorage.getItem('user'));

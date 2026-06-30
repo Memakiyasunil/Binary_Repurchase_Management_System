@@ -271,7 +271,7 @@ export default function Profile() {
             <form onSubmit={async (e) => {
               e.preventDefault(); setIsLoading(true);
               try {
-                const r = await fetch('http://localhost:5000/api/profile/nominee', {
+                const r = await fetch(`http://${window.location.hostname}:5000/api/profile/nominee`, {
                   method: 'PUT', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${user?.token}` },
                   body: JSON.stringify(nomineeData)
                 });
