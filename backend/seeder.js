@@ -11,9 +11,11 @@ connectDB();
 
 const importData = async () => {
   try {
-    // Clear existing data
-    await User.deleteMany();
-    await Product.deleteMany();
+    const userCount = await User.countDocuments();
+    if (userCount > 0) {
+      console.log('Database already seeded. Skipping...');
+      process.exit(0);
+    }
 
     // Hash password for seed users
     const salt = await bcrypt.genSalt(10);
